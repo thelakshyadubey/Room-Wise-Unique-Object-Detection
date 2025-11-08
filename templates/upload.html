@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Images | Room-wise Object Detection</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        border-radius: 8px;
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <style>
+      /* Additional styles for upload page */
+      .upload-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .progress-container {
+        margin: 2rem 0;
+        display: none;
+      }
+
+      .progress-bar-wrapper {
+        width: 100%;
+        height: 8px;
+        background: var(--bg-elevated);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--text-secondary)
+        );
+        border-radius: var(--radius-full);
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      .progress-bar-animated {
+        animation: progressShimmer 1.5s ease-in-out infinite;
+      }
+
+      @keyframes progressShimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      .progress-text {
+        text-align: center;
+        margin-top: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      .file-preview-container {
+        margin-top: 2rem;
+        display: none;
+      }
+
+      .file-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .file-preview-item {
+        position: relative;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 0.75rem;
+        text-align: center;
+        transition: all var(--transition-base);
+      }
+
+      .file-preview-item:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-4px);
+      }
+
+      .file-preview-image {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.5rem;
+      }
+
+      .file-preview-name {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .file-remove-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 24px;
+        height: 24px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid var(--border-medium);
+        border-radius: 50%;
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+      }
+
+      .file-remove-btn:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+      }
+
+      .drop-zone {
+        border: 2px dashed var(--border-medium);
+        border-radius: var(--radius-lg);
+        padding: 3rem 2rem;
+        text-align: center;
+        background: var(--bg-elevated);
+        transition: all var(--transition-base);
+        cursor: pointer;
+        position: relative;
+      }
+
+      .drop-zone.dragover {
+        border-color: var(--accent);
+        background: var(--bg-hover);
+        transform: scale(1.02);
+      }
+
+      .drop-zone-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .drop-zone-text {
+        color: var(--text-primary);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .drop-zone-hint {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      .upload-success {
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        text-align: center;
+        display: none;
+      }
+
+      .upload-success.show {
+        display: block;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .success-message {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .success-description {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Logo placeholder - Replace with your own logo later -->
+    <div class="logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="80" height="80" rx="20" fill="#4A90E2" />
+        <text
+          x="50"
+          y="65"
+          font-family="Arial"
+          font-size="40"
+          fill="white"
+          text-anchor="middle"
+        >
+          SP
+        </text>
+      </svg>
+    </div>
+    <!-- Logo placeholder -->
+    <div class="logo">LOGO</div>
+    <div class="container">
+      <div class="upload-container">
+        <header>
+          <h1>Upload Images</h1>
+          <p class="subtitle">
+            Select your room images for AI-powered object detection
+          </p>
+        </header>
+
+        <section>
+          <h2>Image Upload</h2>
+          <form
+            id="uploadForm"
+            action="{{ url_for('upload_file') }}"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <div class="form-group">
+              <label for="room_id_input">Room Identifier</label>
+              <input
+                type="text"
+                id="room_id_input"
+                name="room_id"
+                placeholder="e.g., Living Room A, Bedroom B"
+                value="Room A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="files">Select Images</label>
+              <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">Drag & Drop Files Here</div>
+                <div class="drop-zone-hint">
+                  or click to browse • Supports JPG, PNG, GIF
+                </div>
+                <input
+                  type="file"
+                  id="files"
+                  name="files[]"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.gif"
+                  style="
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                    opacity: 0;
+                    cursor: pointer;
+                  "
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="file-preview-container" id="filePreviewContainer">
+              <label>Selected Files</label>
+              <div class="file-preview-grid" id="filePreviewGrid"></div>
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+              <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+              </div>
+              <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+              <span>Start Analysis</span>
+              <span style="opacity: 0.7">→</span>
+            </button>
+          </form>
+        </section>
+
+        <div class="upload-success" id="uploadSuccess">
+          <div class="success-icon">✓</div>
+          <div class="success-message">Upload Successful!</div>
+          <div class="success-description">
+            Your images are being processed. Redirecting to results...
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <p>&copy; 2025 Room-wise Unique Object Detection System</p>
+        <p class="mt-1">Powered by YOLOv8 Deep Learning Technology</p>
+      </footer>
+    </div>
+
+    <script>
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("files");
+      const filePreviewContainer = document.getElementById(
+        "filePreviewContainer"
+      );
+      const filePreviewGrid = document.getElementById("filePreviewGrid");
+      const uploadForm = document.getElementById("uploadForm");
+      const progressContainer = document.getElementById("progressContainer");
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
+      const submitBtn = document.getElementById("submitBtn");
+      const uploadSuccess = document.getElementById("uploadSuccess");
+
+      let selectedFiles = [];
+
+      // Prevent default drag behaviors
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // Highlight drop zone when dragging over it
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(
+          eventName,
+          () => {
+            dropZone.classList.add("dragover");
+          },
+          false
+        );
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(
+          eventName,
+          () => {
+            dropZone.classList.remove("dragover");
+          },
+          false
+        );
+      });
+
+      // Handle dropped files
+      dropZone.addEventListener("drop", (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+      });
+
+      // Handle file selection
+      fileInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+      });
+
+      function handleFiles(files) {
+        selectedFiles = Array.from(files);
+        displayFilePreview();
+      }
+
+      function displayFilePreview() {
+        filePreviewGrid.innerHTML = "";
+
+        if (selectedFiles.length === 0) {
+          filePreviewContainer.style.display = "none";
+          return;
+        }
+
+        filePreviewContainer.style.display = "block";
+
+        selectedFiles.forEach((file, index) => {
+          const reader = new FileReader();
+
+          reader.onload = (e) => {
+            const previewItem = document.createElement("div");
+            previewItem.className = "file-preview-item";
+            previewItem.innerHTML = `
+                        <button type="button" class="file-remove-btn" onclick="removeFile(${index})">×</button>
+                        <img src="${e.target.result}" class="file-preview-image" alt="${file.name}">
+                        <div class="file-preview-name" title="${file.name}">${file.name}</div>
+                    `;
+            filePreviewGrid.appendChild(previewItem);
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFileInput();
+        displayFilePreview();
+      }
+
+      function updateFileInput() {
+        const dt = new DataTransfer();
+        selectedFiles.forEach((file) => dt.items.add(file));
+        fileInput.files = dt.files;
+      }
+
+      // Handle form submission
+      uploadForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (selectedFiles.length === 0) {
+          alert("Please select at least one image file.");
+          return;
+        }
+
+        // Show progress
+        progressContainer.style.display = "block";
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+
+        // Simulate progress (replace with actual upload progress if available)
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 15;
+          if (progress > 90) progress = 90;
+          progressBar.style.width = progress + "%";
+          progressText.textContent = `Uploading... ${Math.round(progress)}%`;
+        }, 200);
+
+        // Submit form
+        const formData = new FormData(uploadForm);
+
+        fetch(uploadForm.action, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            clearInterval(interval);
+            progressBar.style.width = "100%";
+            progressText.textContent = "Upload complete!";
+
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error("Upload failed");
+          })
+          .then((data) => {
+            setTimeout(() => {
+              uploadSuccess.classList.add("show");
+              setTimeout(() => {
+                window.location.href =
+                  data.redirect_url || "{{ url_for('index') }}";
+              }, 1500);
+            }, 500);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Upload failed. Please try again.");
+            progressContainer.style.display = "none";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+          });
+      });
+    </script>
+  </body>
+</html>

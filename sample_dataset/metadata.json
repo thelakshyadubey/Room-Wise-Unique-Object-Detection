@@ -1,0 +1,6 @@
+{
+    "image1.jpg": {"room_id": "Living Room A"},
+    "image2.jpg": {"room_id": "Living Room A"},
+    "image3.jpg": {"room_id": "Bedroom B"},
+    "image4.jpg": {"room_id": "Office C"}
+}
