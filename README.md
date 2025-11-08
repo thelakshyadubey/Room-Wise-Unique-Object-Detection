@@ -79,3 +79,17 @@ Then, open your web browser and navigate to `http://127.0.0.1:5000/`.
 - **Code Quality**: Clean, modular, well-documented code.
 - **Practicality**: Clear pipeline from image to report.
 - **Innovation**: Bonus for advanced techniques (scene segmentation, embeddings for uniqueness).
+
+## Preview
+![WhatsApp Image 2025-11-08 at 09 40 22_7206f82f](https://github.com/user-attachments/assets/1e509f60-9088-4be7-b023-2e8fdd0973ed)
+![WhatsApp Image 2025-11-08 at 09 40 36_d9e603bd](https://github.com/user-attachments/assets/e119bd7d-01a2-4e8b-936b-8f556acda35d)
+![WhatsApp Image 2025-11-08 at 09 41 03_ba2b0882](https://github.com/user-attachments/assets/72d5d8af-c684-4f21-a1f4-3a43c931641c)
+![WhatsApp Image 2025-11-08 at 09 41 59_64dca680](https://github.com/user-attachments/assets/ce0e3a3b-4f15-458c-b872-51b3a8e61acb)
+![WhatsApp Image 2025-11-08 at 09 42 44_6c97b3d7](https://github.com/user-attachments/assets/975243b6-ead1-4ac8-a748-823110f20c6a)
+![WhatsApp Image 2025-11-08 at 09 43 07_9b626bcd](https://github.com/user-attachments/assets/6b676768-b8b8-4f29-81d8-08911ed11477)
+
+
+
+
+
+
